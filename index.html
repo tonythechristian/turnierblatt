@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Turnierblatt</title>
+    <link
+      rel="icon"
+      href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="8" fill="%23232120"/><circle cx="32" cy="32" r="17" fill="none" stroke="%23b68235" stroke-width="3"/></svg>'
+    />
+    <link rel="stylesheet" href="./css/styles.css?v=redesign-classical-20260806" />
+    <link rel="stylesheet" href="./css/print.css?v=redesign-classical-20260806" media="print" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="app-frame">
+        <header class="nav">
+          <span class="nav-brand">Turnierblatt</span>
+
+          <span class="nav-switcher">
+            <button
+              id="tournamentSwitcherBtn"
+              class="switcher-button"
+              type="button"
+              aria-expanded="false"
+              aria-haspopup="true"
+            >
+              <span id="tournamentSwitcherName">Turnier</span>
+              <svg
+                class="switcher-chevron"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+            <div id="tournamentSwitcherPanel" class="switcher-panel" hidden>
+              <p class="switcher-panel-heading">Laufende Turniere</p>
+              <div id="tournamentTabs" class="switcher-list"></div>
+              <div class="switcher-panel-footer">
+                <button id="showAllTournamentsBtn" class="link-button" type="button">Alle Turniere</button>
+                <button id="openTournamentWizardBtn" class="link-button" type="button">Neues Turnier</button>
+              </div>
+            </div>
+          </span>
+
+          <nav id="workspaceViewTabs" class="nav-views" aria-label="Ansicht wechseln">
+            <button class="nav-view-link is-active" type="button" data-workspace-view="input">Teilnehmer</button>
+            <button class="nav-view-link" type="button" data-workspace-view="output">Ergebnisse</button>
+            <button class="nav-view-link" type="button" data-workspace-view="live">Live</button>
+          </nav>
+        </header>
+
+        <div class="title-block">
+          <div class="title-block-main">
+            <p class="kicker" id="screenKicker"></p>
+            <h1 id="appTitle">Turnierblatt</h1>
+            <span class="title-facts" id="screenFacts"></span>
+          </div>
+          <div class="title-meta" id="screenMeta"></div>
+        </div>
+
+        <div class="work-area">
+          <div id="messageArea" class="message-area" aria-live="polite"></div>
+
+          <!-- 5a — Meine Turniere: Liste statt Reiterleiste -->
+          <section id="startView" class="start-view" aria-labelledby="start-heading" hidden>
+            <div class="work-split">
+              <div class="work-main">
+                <hr class="work-rule" />
+                <h2 id="start-heading" class="sr-only">Meine Turniere</h2>
+                <div id="startTournamentList" class="start-list"></div>
+                <div class="action-row start-actions">
+                  <button id="startNewTournamentBtn" class="primary-button" type="button">Neues Turnier</button>
+                  <button id="closeStartViewBtn" class="ghost-button" type="button">Zurück</button>
+                </div>
+              </div>
+
+              <aside class="work-rail" aria-label="Werkzeuge">
+                <section class="rail-block">
+                  <h3 class="rail-heading">Schnell anlegen</h3>
+                  <div class="rail-links">
+                    <button id="addRoundRobinTournamentBtn" class="link-button" type="button">Jeder-gegen-jeden</button>
+                    <button id="addTeamTournamentBtn" class="link-button" type="button">Teamwettbewerb</button>
+                    <button id="addGroupsKnockoutTournamentBtn" class="link-button" type="button">Gruppen + KO</button>
+                    <button id="addTtRaceTournamentBtn" class="link-button" type="button">BTTV TT-Race</button>
+                  </div>
+                </section>
+
+                <section class="rail-block">
+                  <h3 class="rail-heading">Vorlagen</h3>
+                  <label class="rail-field">
+                    <span>Vorlage</span>
+                    <select id="templateSelect"></select>
+                  </label>
+                  <label class="inline-check">
+                    <input id="templateIncludeResults" type="checkbox" />
+                    <span>Ergebnisse speichern</span>
+                  </label>
+                  <div class="rail-links">
+                    <button id="saveTemplateBtn" class="link-button" type="button">Aktuelles Turnier sichern</button>
+                    <button id="loadTemplateBtn" class="link-button" type="button">Vorlage laden</button>
+                    <button id="deleteTemplateBtn" class="link-button" type="button">Vorlage löschen</button>
+                  </div>
+                </section>
+
+                <section class="rail-block">
+                  <h3 class="rail-heading">Rundenstände</h3>
+                  <div id="roundCheckpointPanel" class="round-checkpoint-panel" aria-live="polite"></div>
+                </section>
+
+                <section class="rail-block">
+                  <h3 class="rail-heading">Sicherung</h3>
+                  <div class="rail-links">
+                    <button id="saveBackupBtn" class="link-button" type="button">Backup sichern</button>
+                    <button id="loadBackupBtn" class="link-button" type="button">Backup laden</button>
+                    <button id="duplicateTournamentBtn" class="link-button" type="button">Turnier duplizieren</button>
+                  </div>
+                </section>
+              </aside>
+            </div>
+          </section>
+
+          <input id="backupFileInput" type="file" accept=".json,application/json" hidden />
+          <input id="clickTtFileInput" type="file" accept=".xml,text/xml,application/xml" hidden />
+
+          <main class="layout">
+            <div id="inputView" class="workspace-panel">
+              <section id="raceDayShell" class="race-day-shell" aria-labelledby="race-day-heading"></section>
+
+              <!-- Der Konfigurations-Renderer liefert Arbeitsfläche und
+                   Randspalte selbst, weil sie je Format anders aussehen. -->
+              <form id="configForm" class="config-form"></form>
+              <div id="configDetails" class="config-details"></div>
+              <div hidden>
+                <button id="loadExampleBtn" type="button">Beispiel laden</button>
+                <button id="newTournamentBtn" type="button">Turnier leeren</button>
+              </div>
+            </div>
+
+            <div id="outputView" class="workspace-panel" hidden>
+              <div class="work-split">
+                <div class="work-main">
+                  <hr class="work-rule" />
+                  <div id="tournamentSheet" class="sheet-area"></div>
+                </div>
+
+                <!-- Die Randspalte wird vollständig von renderSheetMeta
+                     gefüllt; die Bedienelemente hängen versteckt daran. -->
+                <aside class="work-rail" aria-label="Stand und Werkzeuge">
+                  <div id="sheetMeta" class="sheet-meta"></div>
+                  <div hidden aria-hidden="true">
+                    <button id="exportCurrentRoundCsvBtn" type="button">Aktuelle Runde als CSV</button>
+                    <button id="exportCurrentRoundXlsxBtn" type="button">Aktuelle Runde als XLSX</button>
+                    <button id="exportCsvBtn" type="button">Turnier als CSV</button>
+                    <button id="exportXlsxBtn" type="button">Turnier als XLSX</button>
+                    <button id="resetResultsBtn" type="button">Ergebnisse leeren</button>
+                    <select id="printDocumentSelect" aria-label="Druckdokument auswählen">
+                      <option value="schedule">Spielplan</option>
+                      <option value="resultSlips">Leere Ergebniszettel</option>
+                      <option value="resultMatrix">Ergebnismatrix</option>
+                      <option value="ranking">Rangliste</option>
+                      <option value="winners">Siegerliste</option>
+                      <option value="certificate">Urkunde / Siegerblatt</option>
+                    </select>
+                    <button id="printBtn" type="button">Drucken / PDF</button>
+                    <strong id="autosaveState">Automatische Speicherung aktiv</strong>
+                    <p id="autosaveDetail">Noch nichts gespeichert.</p>
+                    <div id="roundBackupStatus"></div>
+                  </div>
+                </aside>
+              </div>
+            </div>
+
+            <div id="liveView" class="workspace-panel live-workspace-panel" hidden></div>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <dialog id="tournamentWizardDialog" class="wizard-dialog" aria-labelledby="wizardTitle">
+      <div id="tournamentWizardContent" class="wizard-shell"></div>
+    </dialog>
+
+    <dialog id="duplicateTournamentDialog" class="wizard-dialog duplicate-dialog" aria-labelledby="duplicateTournamentTitle">
+      <div class="wizard-shell duplicate-dialog-shell">
+        <div class="wizard-header">
+          <div>
+            <p class="kicker">Turnier duplizieren</p>
+            <h2 id="duplicateTournamentTitle">Ergebnisse übernehmen?</h2>
+          </div>
+          <button class="tab-tool-button icon-only" type="button" data-duplicate-cancel aria-label="Dialog schließen" title="Schließen">
+            <svg class="tab-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
+              <path d="M6 6l12 12" />
+              <path d="M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
+        <p id="duplicateTournamentText" class="duplicate-dialog-copy"></p>
+        <div class="duplicate-choice-grid">
+          <button class="secondary-button duplicate-choice-button" type="button" data-duplicate-choice="without-results">
+            Ohne Ergebnisse
+          </button>
+          <button class="primary-button duplicate-choice-button" type="button" data-duplicate-choice="with-results">
+            Mit Ergebnissen
+          </button>
+        </div>
+        <div class="wizard-footer duplicate-dialog-footer">
+          <button class="ghost-button" type="button" data-duplicate-cancel>Abbrechen</button>
+        </div>
+      </div>
+    </dialog>
+
+    <div id="printDocument" class="print-document" aria-hidden="true"></div>
+
+    <script src="./data/examples.js"></script>
+    <script src="./js/logic.js?v=redesign-classical-20260806"></script>
+    <script src="./js/export.js"></script>
+    <script src="./js/app.js?v=redesign-classical-20260806"></script>
+  </body>
+</html>
